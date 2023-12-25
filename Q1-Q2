@@ -1,0 +1,91 @@
+Q1-----------------------------------------------------------------
+#include <iostream>
+
+using namespace std;
+
+// Abstract base class
+class Vehicle {
+public:
+    // Pure virtual function for movement
+    virtual void move() const = 0;
+};
+
+// Concrete derived class for a Car
+class Car : public Vehicle {
+public:
+    void move() const override {
+        cout << "The car moves on four wheels." << endl;
+    }
+};
+
+// Concrete derived class for a Bicycle
+class Bicycle : public Vehicle {
+public:
+    void move() const override {
+        cout << "The bicycle moves using pedals." << endl;
+    }
+};
+
+// Concrete derived class for an Airplane
+class Airplane : public Vehicle {
+public:
+    void move() const override {
+        cout << "The airplane flies in the sky." << endl;
+    }
+};
+
+int main() {
+    // Using the classes
+    Car car;
+    Bicycle bicycle;
+    Airplane airplane;
+
+    car.move();
+    bicycle.move();
+    airplane.move();
+
+    return 0;
+}
+Q2-----------------------------------------------------
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Product {
+private:
+    int productId;
+    string productName;
+    double price;
+
+public:
+    // Constructor
+    Product(int id, const string& name, double p) : productId(id), productName(name), price(p) {}
+
+    // Function to display product details
+    void displayDetails() {
+        cout << "Product ID: " << productId << endl;
+        cout << "Product Name: " << productName << endl;
+        cout << "Price: $" << price << endl;
+    }
+
+    // Getter for product price
+    double getPrice() const {
+        return price;
+    }
+};
+
+int main() {
+    // Creating some sample products
+    Product product1(1, "Shirt", 19.99);
+    Product product2(2, "Jeans", 29.99);
+    Product product3(3, "Shoes", 39.99);
+
+    // Display details of products
+    product1.displayDetails();
+    product2.displayDetails();
+    product3.displayDetails();
+
+    return 0;
+}
