@@ -3,52 +3,63 @@ Q1-----------------------------------------------------------------
 
 using namespace std;
 
-// Abstract base class
-class Vehicle {
+// Abstract base class Shape
+class Shape {
 public:
-    // Pure virtual function for movement
-    virtual void move() const = 0;
+    // Pure virtual function to calculate area
+    virtual double calculateArea() const = 0;
 };
 
-// Concrete derived class for a Car
-class Car : public Vehicle {
+// Concrete derived class Rectangle
+class Rectangle : public Shape {
+private:
+    double width;
+    double height;
+
 public:
-    void move() const override {
-        cout << "The car moves on four wheels." << endl;
+    Rectangle(double w, double h) : width(w), height(h) {}
+
+    // Implementation of calculateArea for Rectangle
+    double calculateArea() const override {
+        return width * height;
     }
 };
 
-// Concrete derived class for a Bicycle
-class Bicycle : public Vehicle {
-public:
-    void move() const override {
-        cout << "The bicycle moves using pedals." << endl;
-    }
-};
+// Concrete derived class Circle
+class Circle : public Shape {
+private:
+    double radius;
+    const double PI = 3.14159;
 
-// Concrete derived class for an Airplane
-class Airplane : public Vehicle {
 public:
-    void move() const override {
-        cout << "The airplane flies in the sky." << endl;
+    Circle(double r) : radius(r) {}
+
+    // Implementation of calculateArea for Circle
+    double calculateArea() const override {
+        return PI * radius * radius;
     }
 };
 
 int main() {
-    // Using the classes
-    Car car;
-    Bicycle bicycle;
-    Airplane airplane;
+    // Creating instances of Rectangle and Circle using pointers to Shape
+    Shape* rectangle = new Rectangle(5.0, 3.0);
+    Shape* circle = new Circle(4.0);
 
-    car.move();
-    bicycle.move();
-    airplane.move();
+    // Calculating and printing the areas
+    cout << "Area of Rectangle: " << rectangle->calculateArea() << endl;
+    cout << "Area of Circle: " << circle->calculateArea() << endl;
+
+    // Don't forget to release memory allocated for objects
+    delete rectangle;
+    delete circle;
 
     return 0;
 }
+
 Q2-----------------------------------------------------
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -59,12 +70,10 @@ private:
     double price;
 
 public:
-    Product(int id, const string& name, double p) : productId(id), productName(name), price(p) {}
+    Product(int id, const string& name, double cost) : productId(id), productName(name), price(cost) {}
 
-    void displayDetails() {
-        cout << "Product ID: " << productId << "\n";
-        cout << "Product Name: " << productName << "\n";
-        cout << "Price: $" << price << "\n";
+    void displayProductDetails() const {
+        cout << "Product ID: " << productId << ", Name: " << productName << ", Price: $" << price << endl;
     }
 
     double getPrice() const {
@@ -74,44 +83,26 @@ public:
 
 class ShoppingCart {
 private:
-    Product** cart;
-    int itemCount;
-    int capacity;
+    vector<Product*> cartItems;
 
 public:
-    ShoppingCart(int cap) : itemCount(0), capacity(cap) {
-        cart = new Product*[capacity];
+    void addProductToCart(Product* product) {
+        cartItems.push_back(product);
     }
 
-    ~ShoppingCart() {
-        for (int i = 0; i < itemCount; ++i) {
-            delete cart[i];
-        }
-        delete[] cart;
-    }
-
-    void addToCart(Product* product) {
-        if (itemCount < capacity) {
-            cart[itemCount++] = product;
-        } else {
-            cout << "Cart is full.\n";
+    void displayCartItems() const {
+        cout << "Items in the shopping cart:" << endl;
+        for (const auto& item : cartItems) {
+            item->displayProductDetails();
         }
     }
 
-    void displayCart() {
-        cout << "Shopping Cart:\n";
-        for (int i = 0; i < itemCount; ++i) {
-            cart[i]->displayDetails();
-            cout << "------------------------\n";
+    double calculateTotalCost() const {
+        double totalCost = 0.0;
+        for (const auto& item : cartItems) {
+            totalCost += item->getPrice();
         }
-    }
-
-    double calculateTotal() {
-        double total = 0.0;
-        for (int i = 0; i < itemCount; ++i) {
-            total += cart[i]->getPrice();
-        }
-        return total;
+        return totalCost;
     }
 };
 
@@ -123,36 +114,56 @@ private:
 public:
     User(int id) : userId(id), userCart(nullptr) {}
 
-    void setCart(ShoppingCart* cart) {
+    void associateShoppingCart(ShoppingCart* cart) {
         userCart = cart;
     }
 
-    void displayUserDetails() {
-        cout << "User ID: " << userId << "\n";
-        if (userCart != nullptr) {
-            cout << "User has a shopping cart.\n";
+    void displayUserDetails() const {
+        cout << "User ID: " << userId << endl;
+        if (userCart) {
+            cout << "User has a shopping cart associated." << endl;
         } else {
-            cout << "User does not have a shopping cart.\n";
+            cout << "User does not have a shopping cart associated." << endl;
+        }
+    }
+
+    void addProductToUserCart(Product* product) {
+        if (userCart) {
+            userCart->addProductToCart(product);
+        } else {
+            cout << "User does not have a shopping cart to add products." << endl;
         }
     }
 };
 
 int main() {
-    Product prod1(1, "Item 1", 10.99);
-    Product prod2(2, "Item 2", 5.49);
+    Product* product1 = new Product(1, "Laptop", 999.99);
+    Product* product2 = new Product(2, "Headphones", 49.99);
 
-    ShoppingCart cart(5); // Capacity of 5 items
+    ShoppingCart* cart = new ShoppingCart();
+    cart->addProductToCart(product1);
+    cart->addProductToCart(product2);
 
-    cart.addToCart(&prod1);
-    cart.addToCart(&prod2);
+    User* user1 = new User(101);
+    User* user2 = new User(102);
+    user1->associateShoppingCart(cart);
 
-    cart.displayCart();
-    cout << "Total Cost: $" << cart.calculateTotal() << "\n";
+    user1->displayUserDetails();
+    user2->displayUserDetails();
 
-    User user1(1001);
-    user1.setCart(&cart);
+    user1->addProductToUserCart(new Product(3, "Keyboard", 29.99));
 
-    user1.displayUserDetails();
+    cart->displayCartItems();
+    cout << "Total cost in the cart: $" << cart->calculateTotalCost() << endl;
+
+    delete product1;
+    delete product2;
+    delete user1->addProductToUserCart(new Product(3, "Keyboard", 29.99));
+    delete cart;
+    delete user1;
+    delete user2;
 
     return 0;
+}
+
 }
